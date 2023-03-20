@@ -10,8 +10,8 @@ def Counter(self, counter):
 
     for i in range(counter):
         i += 1
-        print(i)
-        sleep(0.5)
+        print(f'task_id: {self.request.id} count: {i}')
+        sleep(1)
         progress_recorder.set_progress(i + 1, counter)
     
     return "done"

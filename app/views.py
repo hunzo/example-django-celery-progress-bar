@@ -1,22 +1,40 @@
-from django.shortcuts import render
-from django.http import JsonResponse
+from django.shortcuts import render, redirect
+# from django.http import JsonResponse
 from .tasks import Counter
+from core.celery import app
+from celery.utils.nodenames import gethostname
+from pprint import pprint
 
 # Create your views here.
 
-def Home(request):
-    ret = Counter.delay(50)
-    print(ret)
+def GetAllTasks():
+    i = app.control.inspect().active()
 
-    context = {
-        "task_id": ret.task_id
-    }
+    hostname = f"celery@{gethostname()}"
+
+    tasks = []
+    for t in i[hostname]:
+        tasks.append(t['id'])
+    return tasks
+    
+ 
+def Home(request):
+
+    if request.method == "POST":
+        ret = Counter.delay(50)
+        context = {
+            "task_id": ret.task_id,
+            "tasks": GetAllTasks()
+        }    
+    else:
+        context = {
+            "task_id": None,
+            "tasks": GetAllTasks()
+        }
+
     return render(request, "index.html", context)
 
-    # context = {
-    #     "task_id": ret.task_id,
-    #     "url": f"http://localhost:8000/celery-progress/{ret.task_id}"
-
-    # }
-
-    # return JsonResponse(context)
+def CancelTask(request, task_id):
+    task = Counter.AsyncResult(task_id).revoke(terminate=True)
+    print(task) 
+    return redirect('home')
