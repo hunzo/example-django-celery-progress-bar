@@ -21,16 +21,12 @@ def GetAllTasks():
 def Home(request):
 
     if request.method == "POST":
-        ret = Counter.delay(50)
-        context = {
-            "task_id": ret.task_id,
-            "tasks": GetAllTasks()
-        }    
-    else:
-        context = {
-            "task_id": None,
-            "tasks": GetAllTasks()
-        }
+        Counter.delay(50)
+        return redirect("home")   
+    
+    context = {
+        "tasks": GetAllTasks()
+    }
 
     return render(request, "index.html", context)
 
