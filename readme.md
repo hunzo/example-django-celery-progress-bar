@@ -12,5 +12,5 @@ python3 manage.py runserver
 ```
 ## Start Celery
 ```
-celery -A core worker -l INFO
+celery -A core worker -l INFO --concurrency=20
 ```
